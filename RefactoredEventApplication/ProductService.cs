@@ -9,14 +9,43 @@ namespace RefactoredEventApplication
 {
     public class ProductService
     {
-        private readonly ILogger _logger;
-        public ProductService(ILogger logger)
+        private IEvent RocaBerryFarm;
+        public ProductService(IEvent _RocaBerryFarm) //this parameter varies from what is Inputed
         {
-            _logger = logger;
+            RocaBerryFarm = _RocaBerryFarm;
         }
-        public void Log(string message)
+        public void PrintInfo()
         {
-            _logger.Log(message);
+            RocaBerryFarm.printInfo();
+        }
+
+    }
+
+    public class PriceService
+    {
+        private IEvent RocaBerryFarm;
+
+        public PriceService(IEvent _RocaBerryFarm) //this parameter varies from what is Inputed
+        {
+            RocaBerryFarm = _RocaBerryFarm;
+        }
+        public void ChangePrice()
+        {
+            RocaBerryFarm.changePrice();
+        }
+    }
+
+    public class ReturnService
+    {
+        private IEvent RocaBerryFarm;
+
+        public ReturnService(IEvent _RocaBerryFarm) //this parameter varies from what is Inputed
+        {
+            RocaBerryFarm = _RocaBerryFarm;
+        }
+        public void AddReturnClause()
+        {
+            RocaBerryFarm.addReturnClause();
         }
     }
 }

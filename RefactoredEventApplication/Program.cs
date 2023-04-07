@@ -3,25 +3,11 @@ using System;
 
 namespace RefactoredEventApplication // Note: actual namespace depends on the project name.
 {
-
-    public interface ILogger
+    public interface IEvent
     {
-        void Log(string message);
-    }
-
-    public interface IdayPass
-    {
-        void printEventInformation();
-    }
-
-    public interface IeveningPass
-    {
-        void printEventInformation();
-    }
-
-    public interface INightPass
-    {
-        void printEventInformation();
+        void printInfo();
+        void changePrice();
+        void addReturnClause();
     }
 
     public class eventInformation // event class
@@ -29,14 +15,21 @@ namespace RefactoredEventApplication // Note: actual namespace depends on the pr
         private int eventId;
         private string eventDescription;
         private double eventCost;
+        private bool isReturnable; //if user can return event ticket
 
-        public eventInformation(int eventId, string eventDescription, double eventCost) // constructor
+        public eventInformation(int eventId, string eventDescription, double eventCost, bool isReturnable) // constructor
         {
             EventId = eventId;
             EventDescription = eventDescription;
             EventCost = eventCost;
+            IsReturnable = isReturnable;
         }
 
+        public bool IsReturnable
+        {
+            get { return isReturnable; }
+            set { isReturnable = value; }
+        }
         public int EventId
         {
             get { return eventId; }
@@ -78,42 +71,22 @@ namespace RefactoredEventApplication // Note: actual namespace depends on the pr
             }
             return eventCost;
         }
+
+        public bool addReturnClause(string choice) //new engine for execptional grade
+        {
+            if (choice.ToLower() == "y")
+            {
+                return true;
+            }
+            else if (choice.ToLower() == "n")
+            {
+                return false;
+            }
+            return false;
+        }
+
     }
 
-    public class eventApplication : IdayPass, IeveningPass, INightPass //event class
-    {
-        private eventInformation currentApplication;
-
-        public eventApplication(int id, string description, double cost)
-        {
-            currentApplication = new eventInformation(id, description, cost);
-        }
-
-        void IdayPass.printEventInformation()
-        {
-            Console.WriteLine("ID:" + currentApplication.EventId + " " + currentApplication.EventDescription + " Price: " + "$" + currentApplication.EventCost);
-            Console.WriteLine("is this customers price correct? (Discount = D) (Late = L) (Employee = E) (Free = F)");
-            var choice = Console.ReadLine();
-            currentApplication.changePrice(choice);
-            Console.WriteLine("ID:" + currentApplication.EventId + " " + currentApplication.EventDescription + " Price: " + "$" + currentApplication.EventCost);
-        }
-        void IeveningPass.printEventInformation()
-        {
-            Console.WriteLine("ID:" + currentApplication.EventId + " " + currentApplication.EventDescription + " Price: " + "$" + currentApplication.EventCost);
-            Console.WriteLine("is this customers price correct? (Discount = D) (Late = L) (Employee = E) (Free = F)");
-            var choice = Console.ReadLine();
-            currentApplication.changePrice(choice);
-            Console.WriteLine("ID:" + currentApplication.EventId + " " + currentApplication.EventDescription + " Price: " + "$" + currentApplication.EventCost);
-        }
-        void INightPass.printEventInformation()
-        {
-            Console.WriteLine("ID:" + currentApplication.EventId + " " + currentApplication.EventDescription + " Price: " + "$" + currentApplication.EventCost);
-            Console.WriteLine("is this customers price correct? (Discount = D) (Late = L) (Employee = E) (Free = F)");
-            var choice = Console.ReadLine();
-            currentApplication.changePrice(choice);
-            Console.WriteLine("ID:" + currentApplication.EventId + " " + currentApplication.EventDescription + " Price: " + "$" + currentApplication.EventCost);
-        }
-    }
     internal class Program
     {
         static void Main(string[] args)
@@ -123,24 +96,33 @@ namespace RefactoredEventApplication // Note: actual namespace depends on the pr
             Console.WriteLine("-----------------------");
             Console.WriteLine("");
 
-            ILogger logger = new FileLogger();
-            ProductService productService = new ProductService(logger);
+            IEvent dayEvent = new DayPass(101, "Enjoy the pletora of activities such as tractor ride, rock band and corn maze!", 20.00, false);
+            IEvent eveningEvent = new EveningPass(202, "Beware of spooky haunted houses and the notorious psycho path", 30.00, false);
+            IEvent nightEvent = new NightPass(303, "Get premium access to the rock bands and enjoy all you can eat food at the hay bar", 50.00, false);
 
-            IdayPass newDayPass = new eventApplication(101, "Enjoy the pletora of activities such as tractor ride, rock band and corn maze!", 20.00);                
-            newDayPass.printEventInformation();
-            productService.Log("Day purchase has been recieved");
-            Console.WriteLine("");
+            ProductService dayService = new ProductService(dayEvent);
+            ProductService eveningService = new ProductService(eveningEvent);
+            ProductService nightService = new ProductService(nightEvent);
 
-            IeveningPass newEveningPass = new eventApplication(202, "Prepare yourself for the spooky haunted houses and more!,", 30.00);
-            newEveningPass.printEventInformation();
-            productService.Log("Evening purchase has been recieved");
-            Console.WriteLine("");
- 
-            INightPass newNightPass = new eventApplication(303, "Have fast passes to haunted houses and exclusive access to the rock bands!", 50.00);
-            newNightPass.printEventInformation();
-            productService.Log("Night purchase has been recieved");
-            Console.WriteLine("");
+            PriceService dayPrice = new PriceService(dayEvent);
+            PriceService eveningPrice = new PriceService(eveningEvent);
+            PriceService nightPrice = new PriceService(nightEvent);
 
+            ReturnService dayReturn = new ReturnService(dayEvent);
+            ReturnService eveningReturn = new ReturnService(eveningEvent);
+            ReturnService nightReturn = new ReturnService(nightEvent);
+
+            dayService.PrintInfo();
+            dayPrice.ChangePrice();
+            dayReturn.AddReturnClause();
+            Console.WriteLine("");
+            eveningService.PrintInfo();
+            eveningPrice.ChangePrice();
+            eveningReturn.AddReturnClause();
+            Console.WriteLine("");
+            nightService.PrintInfo();
+            nightPrice.ChangePrice();
+            nightReturn.AddReturnClause();
         }
     }
 }
